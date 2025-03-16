@@ -1,0 +1,7 @@
+<odoo>
+    <record id="model_auth_token" model="ir.model">
+        <field name="name">auth.token</field>
+        <field name="model">auth.token</field>
+        <field name="state">base</field>
+    </record>
+</odoo>
