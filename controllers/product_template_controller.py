@@ -61,7 +61,6 @@ class ProductTemplateController(AuthController):
                 'active': product.active,
                 'image_url': "/web/image/product.template/{}/image_1920".format(
                     product.id) if product.image_1920 else None,
-                'priority': product.priority,
                 'variants': variants
             }
             product_list.append(product_data)

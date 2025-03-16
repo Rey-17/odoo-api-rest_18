@@ -419,7 +419,6 @@ class ProductController(AuthController):
                     'virtual_available': product.virtual_available,
                     'type': product.type,
                     'product_tmpl_id': product.product_tmpl_id.id,
-                    'priority': product.priority,
                     'categories': categories[::-1],
                     'attributes': attributes,
                     'image_url': f"/product/image/{product.product_tmpl_id.id}" if product.image_1920 else None
@@ -480,7 +479,6 @@ class ProductController(AuthController):
                 'virtual_available': product.virtual_available,
                 'type': product.type,
                 'product_tmpl_id': product.product_tmpl_id.id,
-                'priority': product.priority,
                 'categories': categories[::-1],
                 'attributes': attributes,
                 'image_url': f"/product/image/{product.product_tmpl_id.id}" if product.image_1920 else None
