@@ -46,7 +46,7 @@ class AuthController(http.Controller):
         db = request.env.cr.dbname
         # Intentar autenticar al usuario en la base de datos actual
         try:
-            result = request.env['res.users'].api_authenticate(db, login, password, {})
+            result = request.env['res.users'].api_authenticate(db, login, password)
             data_str = pformat(result)
             _logger.info("Contenido del diccionario: %s", data_str)
 
