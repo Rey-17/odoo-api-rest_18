@@ -1,9 +1,9 @@
-import base64
 from io import BytesIO
-
 from odoo import http, fields
+from werkzeug.wrappers import Response
 from odoo.http import request
 from .auth_contoller import AuthController
+import base64
 import json
 import math
 import logging
@@ -193,7 +193,8 @@ class ProductController(AuthController):
             return self._brain_response({"error": "No image found"}, 404)
 
         image_data = base64.b64decode(product.image_1920)
-        return http.send_file(BytesIO(image_data), mimetype='image/png')
+        return Response(BytesIO(image_data), mimetype='image/png', direct_passthrough=True)
+        # return http.send_file(BytesIO(image_data), mimetype='image/png')
 
     @http.route('/api/product_categories', type='http', auth="none", methods=['GET'], csrf=False)
     def get_product_categories(self, **kwargs):

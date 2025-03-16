@@ -1,6 +1,7 @@
 from odoo import http, fields
 from odoo.http import request
 from .auth_contoller import AuthController
+from werkzeug.wrappers import Response
 import json
 import math
 import base64
@@ -96,7 +97,8 @@ class PartnerController(AuthController):
             return self._brain_response({"error": "No image found"}, 404)
 
         image_data = base64.b64decode(partner.image_1920)
-        return http.send_file(BytesIO(image_data), mimetype='image/png')
+        #return http.send_file(BytesIO(image_data), mimetype='image/png')
+        return Response(BytesIO(image_data), mimetype='image/png', direct_passthrough=True)
 
     @http.route('/api/partners', type='http', auth="none", methods=['POST'], csrf=False)
     def create_partner(self, **kwargs):
