@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Vista de Formulario para CRM Lead -->
+    <record id="view_crm_lead_form_adoption" model="ir.ui.view">
+        <field name="name">crm.lead.form.adoption</field>
+        <field name="model">crm.lead</field>
+        <field name="arch" type="xml">
+            <form string="Oportunidad de Adopción">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="client_id"/>
+                            <field name="contact_phone"/>
+                            <field name="contact_mobile"/>
+                            <field name="contact_email"/>
+                            <field name="address"/>
+                            <field name="industry"/>
+                        </group>
+                        <group>
+                            <field name="coordinator_id"/>
+                            <field name="adoption_type"/>
+                            <field name="proposal_portability"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Documentos">
+                            <field name="adoption_form" widget="binary"/>
+                            <field name="adoption_status"/>
+                        </page>
+                        <page string="Observaciones">
+                            <field name="observations"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Vista de Lista (Tree) -->
+    <record id="view_crm_lead_tree_adoption" model="ir.ui.view">
+        <field name="name">crm.lead.tree.adoption</field>
+        <field name="model">crm.lead</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="client_id"/>
+                <field name="contact_phone"/>
+                <field name="coordinator_id"/>
+                <field name="adoption_type"/>
+                <field name="adoption_status"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Acción para abrir la vista -->
+    <record id="action_crm_lead_adoption" model="ir.actions.act_window">
+        <field name="name">Oportunidades de Adopción</field>
+        <field name="res_model">crm.lead</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[]</field>
+    </record>
+
+    <!-- Menú de acceso -->
+    <menuitem id="menu_crm_lead_adoption" name="Oportunidades de Adopción" parent="crm.crm_menu_root" action="action_crm_lead_adoption"/>
+</odoo>

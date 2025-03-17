@@ -10,6 +10,7 @@
     # data files always loaded at installation
     'data': [
         'data/model_definition.xml',
+        'views/crm_lead_views.xml',
     ],
     'installable': True,
     'application': False,
