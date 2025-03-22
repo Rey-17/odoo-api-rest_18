@@ -31,9 +31,13 @@ class CrmLead(models.Model):
     #     ('soho_fijo', 'Soho Fijo'),
     # ])
 
-    brain_activacion = fields.Selection([
-        ('internet', 'Internet')
-    ])
+    tipo_activacion_id = fields.Many2one(
+        'brain.tipo.activacion',
+        string='Tipo de Activación'
+    )
+    # brain_activacion = fields.Selection([
+    #     ('internet', 'Internet')
+    # ])
 
     # Documentos de Adopción
     adoption_form = fields.Binary(string="Formulario de Adopción")

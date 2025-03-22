@@ -14,6 +14,7 @@
         'views/adoption_type_views.xml',
         'security/ir.model.access.csv',
         'views/brain_tipo_cliente_views.xml',
+        'views/brain_tipo_activacion_views.xml',
     ],
     'installable': True,
     'application': False,

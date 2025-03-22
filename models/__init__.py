@@ -3,3 +3,4 @@ from . import res_users
 from . import crm_lead
 from . import brain_adoption_type
 from . import brain_tipo_cliente
+from . import brain_tipo_activacion
