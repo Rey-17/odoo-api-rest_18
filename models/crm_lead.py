@@ -21,11 +21,15 @@ class CrmLead(models.Model):
     brain_cuenta = fields.Char(string="Cuenta")
     brain_orden = fields.Char(string="Orden")
     brain_mrc = fields.Char(string="MRC")
-    brain_tipo_cliente = fields.Selection([
-        ('masivo_fijo', 'Masivo Fijo'),
-        ('masivo_movil', 'Masivo Movil'),
-        ('soho_fijo', 'Soho Fijo'),
-    ])
+    tipo_cliente_id = fields.Many2one(
+        'brain.tipo.cliente',
+        string='Tipo de Cliente'
+    )
+    # brain_tipo_cliente = fields.Selection([
+    #     ('masivo_fijo', 'Masivo Fijo'),
+    #     ('masivo_movil', 'Masivo Movil'),
+    #     ('soho_fijo', 'Soho Fijo'),
+    # ])
 
     brain_activacion = fields.Selection([
         ('internet', 'Internet')
