@@ -4,24 +4,32 @@ class CrmLead(models.Model):
     _inherit = 'crm.lead'
 
     # Datos del Cliente
-    client_id = fields.Many2one('res.partner', string="Cliente", required=True)
-    contact_phone = fields.Char(string="Teléfono")
-    contact_mobile = fields.Char(string="Celular")
-    contact_email = fields.Char(string="Correo Electrónico")
     address = fields.Char(string="Dirección")
     industry = fields.Many2one('res.partner.industry', string="Industria")
-    observations = fields.Text(string="Observaciones")
 
     # Asignación y Tipo de Adopción
-    coordinator_id = fields.Many2one('res.users', string="Gerente o Coordinador")
-    adoption_type = fields.Selection([
-        ('activo_fijo', 'Activo Fijo'),
-        ('rapido', 'Rápido'),
-        ('semi_fijo', 'Semi Fijo'),
-    ], string="Tipo de Adopción", required=True)
+    adoption_type_id = fields.Many2one('brain.adoption.type', string="Tipo de Registro", required=True)
 
-    # Estado y Portabilidad
-    proposal_portability = fields.Char(string="Propuesta o Portabilidad")
+    # Tipo de adopción: Portabilidades prepagos
+    numero_a_portar = fields.Char(string="Número a portar")
+    sim_card = fields.Char(strin="Sim Card")
+
+    # Tipo de adopción: Línea nueva prepago recarga 5.00
+    numero_de_la_linea_nueva = fields.Char(string="Número de la línea nueva")
+
+    #Tipo de adopción: Autogestión de Móvil y Fijo
+    brain_cuenta = fields.Char(string="Cuenta")
+    brain_orden = fields.Char(string="Orden")
+    brain_mrc = fields.Char(string="MRC")
+    brain_tipo_cliente = fields.Selection([
+        ('masivo_fijo', 'Masivo Fijo'),
+        ('masivo_movil', 'Masivo Movil'),
+        ('soho_fijo', 'Soho Fijo'),
+    ])
+
+    brain_activacion = fields.Selection([
+        ('internet', 'Internet')
+    ])
 
     # Documentos de Adopción
     adoption_form = fields.Binary(string="Formulario de Adopción")

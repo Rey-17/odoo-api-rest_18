@@ -1,38 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <!-- Vista de Formulario para CRM Lead -->
-    <record id="view_crm_lead_form_adoption" model="ir.ui.view">
-        <field name="name">crm.lead.form.adoption</field>
+    <record id="view_crm_lead_form_inherit_adoption" model="ir.ui.view">
+        <field name="name">crm.lead.form.inherit.adoption</field>
         <field name="model">crm.lead</field>
+        <!-- IMPORTANTE: heredamos la vista oficial de CRM -->
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
         <field name="arch" type="xml">
-            <form string="Oportunidad de Adopción">
-                <sheet>
-                    <group>
-                        <group>
-                            <field name="client_id"/>
-                            <field name="contact_phone"/>
-                            <field name="contact_mobile"/>
-                            <field name="contact_email"/>
-                            <field name="address"/>
-                            <field name="industry"/>
-                        </group>
-                        <group>
-                            <field name="coordinator_id"/>
-                            <field name="adoption_type"/>
-                            <field name="proposal_portability"/>
-                        </group>
+
+            <!-- 1) Insertar campos en el bloque de "opportunity_partner" (cuando type='opportunity') -->
+            <!-- Buscamos el campo phone y añadimos nuestros campos justo debajo -->
+            <!-- Buscamos el campo phone dentro del group llamado "opportunity_partner" -->
+           <xpath expr="//group[@name='opportunity_partner']//field[@name='phone']/ancestor::div[@class='o_row o_row_readonly']" position="after">
+                <div class="o_row o_row_readonly">
+                    <group col="1">
+                        <field name="adoption_type_id" />
+                        <field name="address"/>
+                        <field name="industry"/>
                     </group>
-                    <notebook>
-                        <page string="Documentos">
-                            <field name="adoption_form" widget="binary"/>
-                            <field name="adoption_status"/>
-                        </page>
-                        <page string="Observaciones">
-                            <field name="observations"/>
-                        </page>
-                    </notebook>
-                </sheet>
-            </form>
+                </div>
+            </xpath>
+
+
+<!--            &lt;!&ndash; 2) Insertar campos en el bloque de "lead_partner" (cuando type='lead') &ndash;&gt;-->
+<!--            <xpath expr="//group[@name='lead_partner']" position="inside">-->
+<!--                <group col="1">-->
+<!--                    <group>-->
+<!--                        <field name="coordinator_id"/>-->
+<!--                    </group>-->
+<!--                    <group>-->
+<!--                        <field name="address"/>-->
+<!--                    </group>-->
+<!--                    <group>-->
+<!--                        <field name="industry"/>-->
+<!--                    </group>-->
+<!--                    <group>-->
+<!--                        <field name="observations"/>-->
+<!--                    </group>-->
+<!--                </group>-->
+<!--            </xpath>-->
+
+            <!-- 3) Crear una nueva página en el <notebook> para "Documentos" -->
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="Documentos">
+                    <field name="adoption_form" widget="binary"/>
+                    <field name="adoption_status"/>
+                </page>
+            </xpath>
+
         </field>
     </record>
 
@@ -41,13 +56,12 @@
         <field name="name">crm.lead.tree.adoption</field>
         <field name="model">crm.lead</field>
         <field name="arch" type="xml">
-            <tree>
-                <field name="client_id"/>
-                <field name="contact_phone"/>
-                <field name="coordinator_id"/>
-                <field name="adoption_type"/>
+            <list>
+                <field name="partner_id"/> <!-- Cliente -->
+                <field name="phone"/> <!-- Teléfono -->
+                <field name="adoption_type_id"/>
                 <field name="adoption_status"/>
-            </tree>
+            </list>
         </field>
     </record>
 
@@ -55,7 +69,7 @@
     <record id="action_crm_lead_adoption" model="ir.actions.act_window">
         <field name="name">Oportunidades de Adopción</field>
         <field name="res_model">crm.lead</field>
-        <field name="view_mode">tree,form</field>
+        <field name="view_mode">list,form</field>
         <field name="domain">[]</field>
     </record>
 

@@ -11,6 +11,8 @@
     'data': [
         'data/model_definition.xml',
         'views/crm_lead_views.xml',
+        'views/adoption_type_views.xml',
+        'security/ir.model.access.csv'
     ],
     'installable': True,
     'application': False,
