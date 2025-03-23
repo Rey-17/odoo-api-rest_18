@@ -15,6 +15,8 @@
         'security/ir.model.access.csv',
         'views/brain_tipo_cliente_views.xml',
         'views/brain_tipo_activacion_views.xml',
+        'security/ir.model.access.csv',
+        'security/crm_lead_record_rules.xml',
     ],
     'installable': True,
     'application': False,

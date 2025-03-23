@@ -1,12 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <data noupdate="1">
+    <data noupdate="0">
 
-        <!-- Regla para limitar visibilidad de leads a su usuario asignado -->
-        <record id="crm_lead_rule_outsourcing_user" model="ir.rule">
-            <field name="name">Leads del usuario outsourcing</field>
+        <record id="crm_lead_rule_portal_user" model="ir.rule">
+            <field name="name">Leads visibles por el usuario portal</field>
             <field name="model_id" ref="crm.model_crm_lead"/>
             <field name="domain_force">[('user_id', '=', user.id)]</field>
-            <field name="groups" eval="[(4, ref('brain_api_18.group_outsourcing_user'))]"/>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
             <field name="perm_read" eval="1"/>
             <field name="perm_write" eval="0"/>
             <field name="perm_create" eval="1"/>

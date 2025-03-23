@@ -25,13 +25,19 @@ class CrmLeadController(AuthController):
         per_page = int(kwargs.get('per_page', 10))
 
         Lead = env['crm.lead']
+
+        # 🔒 Filtro: Portal solo ve sus propios leads
+        domain = []
+        if env.user.has_group('base.group_portal'):
+            domain.append(('user_id', '=', env.uid))
+
         total_items = Lead.search_count([])
         total_pages = math.ceil(total_items / per_page) if total_items > 0 else 1
 
         if page < 1 or page > total_pages:
             return self._brain_response({'error': 'Página fuera de rango.'}, 400)
 
-        leads = Lead.search([], offset=(page - 1) * per_page, limit=per_page)
+        leads = Lead.search(domain, offset=(page - 1) * per_page, limit=per_page)
 
         lead_list = []
         for lead in leads:
