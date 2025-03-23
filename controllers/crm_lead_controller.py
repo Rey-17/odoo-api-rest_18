@@ -6,6 +6,7 @@ import json
 import math
 import base64
 from io import BytesIO
+from werkzeug.utils import secure_filename
 
 class CrmLeadController(AuthController):
 
@@ -51,6 +52,31 @@ class CrmLeadController(AuthController):
                 'create_date': lead.create_date.isoformat() if lead.create_date else None,
                 'create_uid': lead.create_uid.id if lead.create_uid else None,
                 'create_uid_name': lead.create_uid.name if lead.create_uid else None,
+
+                # 🔽 Campos personalizados
+                'address': lead.address or None,
+                'industry_id': lead.industry.id if lead.industry else None,
+                'industry_name': lead.industry.name if lead.industry else None,
+
+                'adoption_type_id': lead.adoption_type_id.id if lead.adoption_type_id else None,
+                'adoption_type_name': lead.adoption_type_id.name if lead.adoption_type_id else None,
+
+                'numero_a_portar': lead.numero_a_portar or None,
+                'sim_card': lead.sim_card or None,
+                'numero_de_la_linea_nueva': lead.numero_de_la_linea_nueva or None,
+
+                'brain_cuenta': lead.brain_cuenta or None,
+                'brain_orden': lead.brain_orden or None,
+                'brain_mrc': lead.brain_mrc or None,
+
+                'tipo_cliente_id': lead.tipo_cliente_id.id if lead.tipo_cliente_id else None,
+                'tipo_cliente_name': lead.tipo_cliente_id.name if lead.tipo_cliente_id else None,
+
+                'tipo_activacion_id': lead.tipo_activacion_id.id if lead.tipo_activacion_id else None,
+                'tipo_activacion_name': lead.tipo_activacion_id.name if lead.tipo_activacion_id else None,
+
+                'adoption_status': lead.adoption_status or None,
+                'adoption_form': base64.b64encode(lead.adoption_form).decode('utf-8') if lead.adoption_form else None
             }
             lead_list.append(lead_data)
 
@@ -63,3 +89,83 @@ class CrmLeadController(AuthController):
         }
 
         return self._brain_response(response_data, 200)
+
+    @http.route('/api/leads/<int:lead_id>/attachments', type='http', auth='none', methods=['POST'], csrf=False)
+    def upload_attachment(self, lead_id, **kwargs):
+        # Verificar token
+        check, result = self._check_access('crm.lead', operation='write')
+        if not check:
+            return result  # Error 401 o 403
+
+        env = result
+        lead = env['crm.lead'].sudo().browse(lead_id)
+
+        if not lead.exists():
+            return self._brain_response({'error': 'Lead no encontrado.'}, 404)
+
+        # Procesar archivos enviados (form-data)
+        files = request.httprequest.files.getlist('files')
+
+        if not files:
+            return self._brain_response({'error': 'Debe enviar al menos un archivo en form-data.'}, 400)
+
+        attachment_ids = []
+
+        for file in files:
+            filename = secure_filename(file.filename)
+            content = file.read()
+
+            attachment = env['ir.attachment'].sudo().create({
+                'name': filename,
+                'datas': base64.b64encode(content),
+                'res_model': 'crm.lead',
+                'res_id': lead.id,
+                'mimetype': file.mimetype,
+                'type': 'binary',
+            })
+
+            attachment_ids.append(attachment.id)
+
+        # Post en el chatter con todos los archivos
+        lead.message_post(
+            body=f'Se adjuntaron {len(attachment_ids)} archivo(s).',
+            attachment_ids=attachment_ids
+        )
+        return self._brain_response({'success': 'Archivos adjuntados correctamente.'}, 200)
+
+    @http.route('/api/leads/<int:lead_id>/attachments', type='http', auth='none', methods=['GET'], csrf=False)
+    def list_attachments(self, lead_id, **kwargs):
+        # Verificar autenticación
+        check, result = self._check_access('crm.lead', operation='read')
+        if not check:
+            return result  # error 401 / 403
+
+        env = result
+        lead = env['crm.lead'].sudo().browse(lead_id)
+
+        if not lead.exists():
+            return self._brain_response({'error': 'Lead no encontrado.'}, 404)
+
+        # Buscar archivos adjuntos relacionados
+        attachments = env['ir.attachment'].sudo().search([
+            ('res_model', '=', 'crm.lead'),
+            ('res_id', '=', lead.id)
+        ])
+
+        data = []
+        for att in attachments:
+            data.append({
+                'id': att.id,
+                'name': att.name,
+                'mimetype': att.mimetype,
+                'create_date': att.create_date.isoformat() if att.create_date else None,
+                'file_size': att.file_size,
+                'is_image': att.mimetype.startswith('image/') if att.mimetype else False,
+                'download_url': f'/web/content/{att.id}?download=true'
+            })
+
+        return self._brain_response({
+            'lead_id': lead.id,
+            'total_attachments': len(data),
+            'attachments': data
+        }, 200)
