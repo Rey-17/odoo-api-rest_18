@@ -38,11 +38,3 @@ class CrmLead(models.Model):
     # brain_activacion = fields.Selection([
     #     ('internet', 'Internet')
     # ])
-
-    # Documentos de Adopción
-    adoption_form = fields.Binary(string="Formulario de Adopción")
-    adoption_status = fields.Selection([
-        ('pending', 'Pendiente'),
-        ('approved', 'Aprobado'),
-        ('rejected', 'Rechazado'),
-    ], string="Estado de Adopción", default='pending')

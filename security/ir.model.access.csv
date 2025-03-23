@@ -2,3 +2,4 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_brain_adoption_type_admin,access.brain.adoption.type.admin,model_brain_adoption_type,base.group_system,1,1,1,1
 access_brain_tipo_cliente_admin,access.brain.tipo.cliente.admin,model_brain_tipo_cliente,base.group_system,1,1,1,1
 access_brain_tipo_activacion_admin,access.brain.tipo.activacion.admin,model_brain_tipo_activacion,base.group_system,1,1,1,1
+access_crm_lead_outsourcing,access.crm.lead.outsourcing,model_crm_lead,brain_api_18.group_outsourcing_user,1,0,1,0

@@ -1,3 +1,5 @@
+import traceback
+
 from odoo import http, fields
 from odoo.http import request
 from .auth_contoller import AuthController
@@ -132,3 +134,96 @@ class CrmLeadController(AuthController):
             attachment_ids=attachment_ids
         )
         return self._brain_response({'success': 'Archivos adjuntados correctamente.'}, 200)
+
+    @http.route('/api/leads', type='http', auth='none', methods=['POST'], csrf=False)
+    def create_lead(self, **kwargs):
+        """Crear una nueva oportunidad (Lead) desde la API y devolver su información completa."""
+        check, result = self._check_access('crm.lead', 'create')
+        if not check:
+            return result
+
+        env = result
+
+        try:
+            values = request.get_json_data()
+
+            lead_vals = {
+                'name': values.get('name'),
+                'email_from': values.get('email_from'),
+                'phone': values.get('phone'),
+                'mobile': values.get('mobile'),
+                'expected_revenue': values.get('expected_revenue'),
+                'probability': values.get('probability'),
+                'user_id': values.get('user_id'),
+                'partner_id': values.get('partner_id'),
+                'company_id': values.get('company_id'),
+                'address': values.get('address'),
+                'industry': values.get('industry_id'),
+                'adoption_type_id': values.get('adoption_type_id'),
+                'numero_a_portar': values.get('numero_a_portar'),
+                'sim_card': values.get('sim_card'),
+                'numero_de_la_linea_nueva': values.get('numero_de_la_linea_nueva'),
+                'brain_cuenta': values.get('brain_cuenta'),
+                'brain_orden': values.get('brain_orden'),
+                'brain_mrc': values.get('brain_mrc'),
+                'tipo_cliente_id': values.get('tipo_cliente_id'),
+                'tipo_activacion_id': values.get('tipo_activacion_id'),
+                'adoption_status': values.get('adoption_status') or 'pending',
+            }
+
+            # Archivo adjunto opcional (base64)
+            if values.get('adoption_form'):
+                try:
+                    lead_vals['adoption_form'] = base64.b64decode(values['adoption_form'])
+                except Exception:
+                    return self._brain_response({'error': 'El campo "adoption_form" debe estar en base64 válido.'}, 400)
+
+            # Crear el lead
+            lead = env['crm.lead'].sudo().create(lead_vals)
+
+            # Armar respuesta completa
+            lead_data = {
+                'id': lead.id,
+                'name': lead.name or None,
+                'email_from': lead.email_from or None,
+                'phone': lead.phone or None,
+                'mobile': lead.mobile or None,
+                'stage_id': lead.stage_id.id if lead.stage_id else None,
+                'stage_name': lead.stage_id.name if lead.stage_id else None,
+                'partner_id': lead.partner_id.id if lead.partner_id else None,
+                'partner_name': lead.partner_id.name if lead.partner_id else None,
+                'expected_revenue': lead.expected_revenue or 0.0,
+                'probability': lead.probability or 0.0,
+                'user_id': lead.user_id.id if lead.user_id else None,
+                'user_name': lead.user_id.name if lead.user_id else None,
+                'company_id': lead.company_id.id if lead.company_id else None,
+                'company_name': lead.company_id.name if lead.company_id else None,
+                'create_date': lead.create_date.isoformat() if lead.create_date else None,
+                'create_uid': lead.create_uid.id if lead.create_uid else None,
+                'create_uid_name': lead.create_uid.name if lead.create_uid else None,
+
+                # Campos personalizados
+                'address': lead.address or None,
+                'industry_id': lead.industry.id if lead.industry else None,
+                'industry_name': lead.industry.name if lead.industry else None,
+                'adoption_type_id': lead.adoption_type_id.id if lead.adoption_type_id else None,
+                'adoption_type_name': lead.adoption_type_id.name if lead.adoption_type_id else None,
+                'numero_a_portar': lead.numero_a_portar or None,
+                'sim_card': lead.sim_card or None,
+                'numero_de_la_linea_nueva': lead.numero_de_la_linea_nueva or None,
+                'brain_cuenta': lead.brain_cuenta or None,
+                'brain_orden': lead.brain_orden or None,
+                'brain_mrc': lead.brain_mrc or None,
+                'tipo_cliente_id': lead.tipo_cliente_id.id if lead.tipo_cliente_id else None,
+                'tipo_cliente_name': lead.tipo_cliente_id.name if lead.tipo_cliente_id else None,
+                'tipo_activacion_id': lead.tipo_activacion_id.id if lead.tipo_activacion_id else None,
+                'tipo_activacion_name': lead.tipo_activacion_id.name if lead.tipo_activacion_id else None,
+                'adoption_status': lead.adoption_status or None,
+                'adoption_form': base64.b64encode(lead.adoption_form).decode('utf-8') if lead.adoption_form else None
+            }
+
+            return self._brain_response({'status': 'success', 'lead': lead_data}, 201)
+
+        except Exception as e:
+            error_msg = traceback.format_exc()
+            return self._brain_response({'error': f'Error al crear el lead: {str(e)}', 'debug': error_msg}, 500)

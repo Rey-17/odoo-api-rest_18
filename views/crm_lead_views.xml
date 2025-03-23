@@ -17,6 +17,7 @@
                         <field name="adoption_type_id" />
                         <field name="address"/>
                         <field name="industry"/>
+
                     </group>
                 </div>
             </xpath>
@@ -41,12 +42,12 @@
 <!--            </xpath>-->
 
             <!-- 3) Crear una nueva página en el <notebook> para "Documentos" -->
-            <xpath expr="//sheet/notebook" position="inside">
-                <page string="Documentos">
-                    <field name="adoption_form" widget="binary"/>
-                    <field name="adoption_status"/>
-                </page>
-            </xpath>
+<!--            <xpath expr="//sheet/notebook" position="inside">-->
+<!--                <page string="Documentos">-->
+<!--                    <field name="adoption_form" widget="binary"/>-->
+<!--                    <field name="adoption_status"/>-->
+<!--                </page>-->
+<!--            </xpath>-->
 
         </field>
     </record>
@@ -59,8 +60,6 @@
             <list>
                 <field name="partner_id"/> <!-- Cliente -->
                 <field name="phone"/> <!-- Teléfono -->
-                <field name="adoption_type_id"/>
-                <field name="adoption_status"/>
             </list>
         </field>
     </record>
