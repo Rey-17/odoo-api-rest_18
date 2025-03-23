@@ -5,3 +5,4 @@ from . import product_template_controller
 from . import partner_controller
 from . import sale_report_controller
 from . import crm_lead_controller
+from . import attachment_api
