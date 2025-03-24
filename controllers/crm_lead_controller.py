@@ -61,7 +61,7 @@ class CrmLeadController(AuthController):
                 'create_uid': lead.create_uid.id if lead.create_uid else None,
                 'create_uid_name': lead.create_uid.name if lead.create_uid else None,
 
-                # 🔽 Campos personalizados
+                # Campos personalizados
                 'address': lead.address or None,
                 'industry_id': lead.industry.id if lead.industry else None,
                 'industry_name': lead.industry.name if lead.industry else None,
@@ -81,10 +81,7 @@ class CrmLeadController(AuthController):
                 'tipo_cliente_name': lead.tipo_cliente_id.name if lead.tipo_cliente_id else None,
 
                 'tipo_activacion_id': lead.tipo_activacion_id.id if lead.tipo_activacion_id else None,
-                'tipo_activacion_name': lead.tipo_activacion_id.name if lead.tipo_activacion_id else None,
-
-                'adoption_status': lead.adoption_status or None,
-                'adoption_form': base64.b64encode(lead.adoption_form).decode('utf-8') if lead.adoption_form else None
+                'tipo_activacion_name': lead.tipo_activacion_id.name if lead.tipo_activacion_id else None
             }
             lead_list.append(lead_data)
 
@@ -173,8 +170,7 @@ class CrmLeadController(AuthController):
                 'brain_orden': values.get('brain_orden'),
                 'brain_mrc': values.get('brain_mrc'),
                 'tipo_cliente_id': values.get('tipo_cliente_id'),
-                'tipo_activacion_id': values.get('tipo_activacion_id'),
-                'adoption_status': values.get('adoption_status') or 'pending',
+                'tipo_activacion_id': values.get('tipo_activacion_id')
             }
 
             # Archivo adjunto opcional (base64)
@@ -223,9 +219,7 @@ class CrmLeadController(AuthController):
                 'tipo_cliente_id': lead.tipo_cliente_id.id if lead.tipo_cliente_id else None,
                 'tipo_cliente_name': lead.tipo_cliente_id.name if lead.tipo_cliente_id else None,
                 'tipo_activacion_id': lead.tipo_activacion_id.id if lead.tipo_activacion_id else None,
-                'tipo_activacion_name': lead.tipo_activacion_id.name if lead.tipo_activacion_id else None,
-                'adoption_status': lead.adoption_status or None,
-                'adoption_form': base64.b64encode(lead.adoption_form).decode('utf-8') if lead.adoption_form else None
+                'tipo_activacion_name': lead.tipo_activacion_id.name if lead.tipo_activacion_id else None
             }
 
             return self._brain_response({'status': 'success', 'lead': lead_data}, 201)
@@ -233,3 +227,83 @@ class CrmLeadController(AuthController):
         except Exception as e:
             error_msg = traceback.format_exc()
             return self._brain_response({'error': f'Error al crear el lead: {str(e)}', 'debug': error_msg}, 500)
+
+    @http.route('/api/industries', type='http', auth="none", methods=['GET'], csrf=False)
+    def get_industries(self, **kwargs):
+        """API para obtener lista de industrias (res.partner.industry)"""
+        check, result = self._check_access('res.partner.industry')
+        if not check:
+            return result
+
+        env = result
+        industry = env['res.partner.industry']
+        industries = industry.sudo().search([])
+
+        industry_list = []
+        for industry in industries:
+            industry_list.append({
+                'id': industry.id,
+                'name': industry.name
+            })
+
+        return self._brain_response({'status': 'success', 'items': industry_list}, 200)
+
+    @http.route('/api/adoption_types', type='http', auth="none", methods=['GET'], csrf=False)
+    def get_adoption_types(self, **kwargs):
+        """API para obtener lista de tipos de adopción (brain.adoption.type)"""
+        check, result = self._check_access('brain.adoption.type')
+        if not check:
+            return result
+
+        env = result
+        AdoptionType = env['brain.adoption.type']
+        types = AdoptionType.sudo().search([])
+
+        type_list = []
+        for adoption_type in types:
+            type_list.append({
+                'id': adoption_type.id,
+                'name': adoption_type.name
+            })
+
+        return self._brain_response({'status': 'success', 'items': type_list}, 200)
+
+    @http.route('/api/tipos_activacion', type='http', auth="none", methods=['GET'], csrf=False)
+    def get_tipos_activacion(self, **kwargs):
+        """API para obtener lista de tipos de activación (brain.tipo.activacion)"""
+        check, result = self._check_access('brain.tipo.activacion')
+        if not check:
+            return result
+
+        env = result
+        TipoActivacion = env['brain.tipo.activacion']
+        tipos = TipoActivacion.sudo().search([])
+
+        tipo_list = []
+        for tipo in tipos:
+            tipo_list.append({
+                'id': tipo.id,
+                'name': tipo.name
+            })
+
+        return self._brain_response({'status': 'success', 'items': tipo_list}, 200)
+
+    @http.route('/api/tipos_cliente', type='http', auth="none", methods=['GET'], csrf=False)
+    def get_tipos_cliente(self, **kwargs):
+        """API para obtener lista de tipos de cliente (brain.tipo.cliente)"""
+        check, result = self._check_access('brain.tipo.cliente')
+        if not check:
+            return result
+
+        env = result
+        TipoCliente = env['brain.tipo.cliente']
+        tipos = TipoCliente.sudo().search([])
+
+        tipo_list = []
+        for tipo in tipos:
+            tipo_list.append({
+                'id': tipo.id,
+                'name': tipo.name
+            })
+
+        return self._brain_response({'status': 'success', 'items': tipo_list}, 200)
