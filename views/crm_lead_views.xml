@@ -14,10 +14,18 @@
            <xpath expr="//group[@name='opportunity_partner']//field[@name='phone']/ancestor::div[@class='o_row o_row_readonly']" position="after">
                 <div class="o_row o_row_readonly">
                     <group col="1">
+                        <field name="brain_coordinador"/>
                         <field name="adoption_type_id" />
+                        <field name="tipo_cliente_id" />
+                        <field name="tipo_activacion_id" />
                         <field name="address"/>
                         <field name="industry"/>
-
+                        <field name="numero_a_portar" />
+                        <field name="sim_card" />
+                        <field name="numero_de_la_linea_nueva" />
+                        <field name="brain_cuenta" />
+                        <field name="brain_orden" />
+                        <field name="brain_mrc" />
                     </group>
                 </div>
             </xpath>

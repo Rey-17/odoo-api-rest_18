@@ -6,6 +6,11 @@ class CrmLead(models.Model):
     # Datos del Cliente
     address = fields.Char(string="Dirección")
     industry = fields.Many2one('res.partner.industry', string="Industria")
+    brain_coordinador = fields.Many2one(
+        'res.users',
+        string="Coordinador",
+        domain=lambda self: [('groups_id', 'in', self.env.ref('sales_team.group_sale_manager').ids)]
+    )
 
     # Asignación y Tipo de Adopción
     adoption_type_id = fields.Many2one('brain.adoption.type', string="Tipo de Registro", required=True)

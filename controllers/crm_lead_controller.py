@@ -231,7 +231,7 @@ class CrmLeadController(AuthController):
     @http.route('/api/industries', type='http', auth="none", methods=['GET'], csrf=False)
     def get_industries(self, **kwargs):
         """API para obtener lista de industrias (res.partner.industry)"""
-        check, result = self._check_access('res.partner.industry')
+        check, result = self._check_access('crm.lead', operation='read')
         if not check:
             return result
 
@@ -251,7 +251,7 @@ class CrmLeadController(AuthController):
     @http.route('/api/adoption_types', type='http', auth="none", methods=['GET'], csrf=False)
     def get_adoption_types(self, **kwargs):
         """API para obtener lista de tipos de adopción (brain.adoption.type)"""
-        check, result = self._check_access('brain.adoption.type')
+        check, result = self._check_access('crm.lead', operation='read')
         if not check:
             return result
 
@@ -271,7 +271,7 @@ class CrmLeadController(AuthController):
     @http.route('/api/tipos_activacion', type='http', auth="none", methods=['GET'], csrf=False)
     def get_tipos_activacion(self, **kwargs):
         """API para obtener lista de tipos de activación (brain.tipo.activacion)"""
-        check, result = self._check_access('brain.tipo.activacion')
+        check, result = self._check_access('crm.lead', operation='read')
         if not check:
             return result
 
@@ -291,7 +291,7 @@ class CrmLeadController(AuthController):
     @http.route('/api/tipos_cliente', type='http', auth="none", methods=['GET'], csrf=False)
     def get_tipos_cliente(self, **kwargs):
         """API para obtener lista de tipos de cliente (brain.tipo.cliente)"""
-        check, result = self._check_access('brain.tipo.cliente')
+        check, result = self._check_access('crm.lead', operation='read')
         if not check:
             return result
 
