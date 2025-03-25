@@ -242,6 +242,7 @@ class CrmLeadController(AuthController):
                 'address': lead.address or None,
                 'industry_id': lead.industry.id if lead.industry else None,
                 'industry_name': lead.industry.name if lead.industry else None,
+                'coordinador_id': lead.brain_coordinador.id if lead.brain_coordinador else None,
                 'adoption_type_id': lead.adoption_type_id.id if lead.adoption_type_id else None,
                 'adoption_type_name': lead.adoption_type_id.name if lead.adoption_type_id else None,
                 'numero_a_portar': lead.numero_a_portar or None,
