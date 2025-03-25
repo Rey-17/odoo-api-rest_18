@@ -81,5 +81,5 @@
     </record>
 
     <!-- Menú de acceso -->
-    <menuitem id="menu_crm_lead_adoption" name="Oportunidades de Adopción" parent="crm.crm_menu_root" action="action_crm_lead_adoption"/>
+<!--    <menuitem id="menu_crm_lead_adoption" name="Oportunidades de Adopción" parent="crm.crm_menu_root" action="action_crm_lead_adoption"/>-->
 </odoo>

@@ -65,6 +65,8 @@ class CrmLeadController(AuthController):
                 'address': lead.address or None,
                 'industry_id': lead.industry.id if lead.industry else None,
                 'industry_name': lead.industry.name if lead.industry else None,
+                'coordinador_id': lead.brain_coordinador.id if lead.brain_coordinador else None,
+                'coordinador_name': lead.brain_coordinador.name if lead.brain_coordinador else None,
 
                 'adoption_type_id': lead.adoption_type_id.id if lead.adoption_type_id else None,
                 'adoption_type_name': lead.adoption_type_id.name if lead.adoption_type_id else None,
@@ -94,6 +96,29 @@ class CrmLeadController(AuthController):
         }
 
         return self._brain_response(response_data, 200)
+
+    @http.route('/api/sales_manager', type='http', auth="none", methods=['GET'], csrf=False)
+    def get_coordinadores(self, **kwargs):
+        """API para obtener lista de usuarios con rol de Coordinador (Sales Manager)"""
+        check, result = self._check_access('crm.lead', operation='read')
+        if not check:
+            return result
+
+        env = result
+        group = env.ref('sales_team.group_sale_manager')
+        coordinadores = env['res.users'].sudo().search([
+            ('groups_id', 'in', [group.id])
+        ])
+
+        users_list = []
+        for user in coordinadores:
+            users_list.append({
+                'id': user.id,
+                'name': user.name,
+                'email': user.email or '',
+                'login': user.login
+            })
+        return self._brain_response({'status': 'success', 'items': users_list}, 200)
 
     @http.route('/api/leads/<int:lead_id>/attachments', type='http', auth='none', methods=['POST'], csrf=False)
     def upload_attachment(self, lead_id, **kwargs):
@@ -150,6 +175,14 @@ class CrmLeadController(AuthController):
         try:
             values = request.get_json_data()
 
+            # Validar si el coordinador pertenece al grupo Sales Manager
+            coordinador_id = values.get('coordinador_id')
+            if coordinador_id:
+                user = env['res.users'].sudo().browse(coordinador_id)
+                grupo_coordinador = env.ref('sales_team.group_sale_manager')
+                if grupo_coordinador not in user.groups_id:
+                    return self._brain_response({'error': 'El usuario seleccionado no es un Coordinador válido.'}, 400)
+
             lead_vals = {
                 'name': values.get('name'),
                 'email_from': values.get('email_from'),
@@ -162,6 +195,7 @@ class CrmLeadController(AuthController):
                 'company_id': values.get('company_id'),
                 'address': values.get('address'),
                 'industry': values.get('industry_id'),
+                'brain_coordinador': coordinador_id,
                 'adoption_type_id': values.get('adoption_type_id'),
                 'numero_a_portar': values.get('numero_a_portar'),
                 'sim_card': values.get('sim_card'),
