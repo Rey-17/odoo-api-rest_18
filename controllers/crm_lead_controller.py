@@ -60,6 +60,7 @@ class CrmLeadController(AuthController):
                 'create_date': lead.create_date.isoformat() if lead.create_date else None,
                 'create_uid': lead.create_uid.id if lead.create_uid else None,
                 'create_uid_name': lead.create_uid.name if lead.create_uid else None,
+                'description': lead.description,  # SE AGREGÓ EL CAMPO DESCRIPCION
 
                 # Campos personalizados
                 'address': lead.address or None,
@@ -83,7 +84,8 @@ class CrmLeadController(AuthController):
                 'tipo_cliente_name': lead.tipo_cliente_id.name if lead.tipo_cliente_id else None,
 
                 'tipo_activacion_id': lead.tipo_activacion_id.id if lead.tipo_activacion_id else None,
-                'tipo_activacion_name': lead.tipo_activacion_id.name if lead.tipo_activacion_id else None
+                'tipo_activacion_name': lead.tipo_activacion_id.name if lead.tipo_activacion_id else None,
+                'brain_province': lead.brain_province if lead.brain_province else None
             }
             lead_list.append(lead_data)
 
@@ -204,7 +206,9 @@ class CrmLeadController(AuthController):
                 'brain_orden': values.get('brain_orden'),
                 'brain_mrc': values.get('brain_mrc'),
                 'tipo_cliente_id': values.get('tipo_cliente_id'),
-                'tipo_activacion_id': values.get('tipo_activacion_id')
+                'tipo_activacion_id': values.get('tipo_activacion_id'),
+                'description': values.get('description'),
+                'brain_province': values.get('brain_province'),
             }
 
             # Archivo adjunto opcional (base64)
@@ -254,7 +258,8 @@ class CrmLeadController(AuthController):
                 'tipo_cliente_id': lead.tipo_cliente_id.id if lead.tipo_cliente_id else None,
                 'tipo_cliente_name': lead.tipo_cliente_id.name if lead.tipo_cliente_id else None,
                 'tipo_activacion_id': lead.tipo_activacion_id.id if lead.tipo_activacion_id else None,
-                'tipo_activacion_name': lead.tipo_activacion_id.name if lead.tipo_activacion_id else None
+                'tipo_activacion_name': lead.tipo_activacion_id.name if lead.tipo_activacion_id else None,
+                'brain_province': lead.brain_province if lead.brain_province else None
             }
 
             return self._brain_response({'status': 'success', 'lead': lead_data}, 201)
@@ -342,3 +347,109 @@ class CrmLeadController(AuthController):
             })
 
         return self._brain_response({'status': 'success', 'items': tipo_list}, 200)
+
+    @http.route('/api/leads/<int:lead_id>', type='http', auth='none', methods=['POST'], csrf=False)
+    def update_lead(self, lead_id, **kwargs):
+        """Actualizar una oportunidad (Lead) existente"""
+        check, result = self._check_access('crm.lead', operation='write')
+        if not check:
+            return result
+
+        env = result
+        lead = env['crm.lead'].sudo().browse(lead_id)
+
+        if not lead.exists():
+            return self._brain_response({'error': 'Lead no encontrado.'}, 404)
+
+        try:
+            values = request.get_json_data()
+
+            # Validar si el coordinador pertenece al grupo Sales Manager
+            coordinador_id = values.get('coordinador_id')
+            if coordinador_id:
+                user = env['res.users'].sudo().browse(coordinador_id)
+                grupo_coordinador = env.ref('sales_team.group_sale_manager')
+                if grupo_coordinador not in user.groups_id:
+                    return self._brain_response({'error': 'El usuario seleccionado no es un Coordinador válido.'}, 400)
+
+            lead_vals = {
+                'name': values.get('name'),
+                'email_from': values.get('email_from'),
+                'phone': values.get('phone'),
+                'mobile': values.get('mobile'),
+                'expected_revenue': values.get('expected_revenue'),
+                'probability': values.get('probability') or 0.0,
+                'user_id': values.get('user_id'),
+                'partner_id': values.get('partner_id'),
+                'company_id': values.get('company_id'),
+                'address': values.get('address'),
+                'industry': values.get('industry_id'),
+                'brain_coordinador': coordinador_id,
+                'adoption_type_id': values.get('adoption_type_id'),
+                'numero_a_portar': values.get('numero_a_portar'),
+                'sim_card': values.get('sim_card'),
+                'numero_de_la_linea_nueva': values.get('numero_de_la_linea_nueva'),
+                'brain_cuenta': values.get('brain_cuenta'),
+                'brain_orden': values.get('brain_orden'),
+                'brain_mrc': values.get('brain_mrc'),
+                'tipo_cliente_id': values.get('tipo_cliente_id'),
+                'tipo_activacion_id': values.get('tipo_activacion_id'),
+                'description': values.get('description'),
+                'brain_province': values.get('brain_province'),
+            }
+
+            # Archivo adjunto opcional (base64)
+            if values.get('adoption_form'):
+                try:
+                    lead_vals['adoption_form'] = base64.b64decode(values['adoption_form'])
+                except Exception:
+                    return self._brain_response({'error': 'El campo "adoption_form" debe estar en base64 válido.'}, 400)
+
+            # Actualizar el lead
+            lead.write(lead_vals)
+
+            # Preparar respuesta
+            lead_data = {
+                'id': lead.id,
+                'name': lead.name or None,
+                'email_from': lead.email_from or None,
+                'phone': lead.phone or None,
+                'mobile': lead.mobile or None,
+                'stage_id': lead.stage_id.id if lead.stage_id else None,
+                'stage_name': lead.stage_id.name if lead.stage_id else None,
+                'partner_id': lead.partner_id.id if lead.partner_id else None,
+                'partner_name': lead.partner_id.name if lead.partner_id else None,
+                'expected_revenue': lead.expected_revenue or 0.0,
+                'probability': lead.probability or 0.0,
+                'user_id': lead.user_id.id if lead.user_id else None,
+                'user_name': lead.user_id.name if lead.user_id else None,
+                'company_id': lead.company_id.id if lead.company_id else None,
+                'company_name': lead.company_id.name if lead.company_id else None,
+                'create_date': lead.create_date.isoformat() if lead.create_date else None,
+                'create_uid': lead.create_uid.id if lead.create_uid else None,
+                'create_uid_name': lead.create_uid.name if lead.create_uid else None,
+                'address': lead.address or None,
+                'industry_id': lead.industry.id if lead.industry else None,
+                'industry_name': lead.industry.name if lead.industry else None,
+                'coordinador_id': lead.brain_coordinador.id if lead.brain_coordinador else None,
+                'adoption_type_id': lead.adoption_type_id.id if lead.adoption_type_id else None,
+                'adoption_type_name': lead.adoption_type_id.name if lead.adoption_type_id else None,
+                'numero_a_portar': lead.numero_a_portar or None,
+                'sim_card': lead.sim_card or None,
+                'numero_de_la_linea_nueva': lead.numero_de_la_linea_nueva or None,
+                'brain_cuenta': lead.brain_cuenta or None,
+                'brain_orden': lead.brain_orden or None,
+                'brain_mrc': lead.brain_mrc or None,
+                'tipo_cliente_id': lead.tipo_cliente_id.id if lead.tipo_cliente_id else None,
+                'tipo_cliente_name': lead.tipo_cliente_id.name if lead.tipo_cliente_id else None,
+                'tipo_activacion_id': lead.tipo_activacion_id.id if lead.tipo_activacion_id else None,
+                'tipo_activacion_name': lead.tipo_activacion_id.name if lead.tipo_activacion_id else None,
+                'brain_province': lead.brain_province if lead.brain_province else None
+            }
+
+            return self._brain_response({'status': 'success', 'lead': lead_data}, 200)
+
+        except Exception as e:
+            error_msg = traceback.format_exc()
+            return self._brain_response({'error': f'Error al actualizar el lead: {str(e)}', 'debug': error_msg}, 500)
+

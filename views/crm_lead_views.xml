@@ -26,6 +26,7 @@
                         <field name="brain_cuenta" />
                         <field name="brain_orden" />
                         <field name="brain_mrc" />
+                        <field name="brain_province" />
                     </group>
                 </div>
             </xpath>
