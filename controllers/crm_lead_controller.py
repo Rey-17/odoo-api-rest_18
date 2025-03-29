@@ -85,7 +85,11 @@ class CrmLeadController(AuthController):
 
                 'tipo_activacion_id': lead.tipo_activacion_id.id if lead.tipo_activacion_id else None,
                 'tipo_activacion_name': lead.tipo_activacion_id.name if lead.tipo_activacion_id else None,
-                'brain_province': lead.brain_province if lead.brain_province else None
+                'brain_province': lead.brain_province if lead.brain_province else None,
+                'backoffice': {
+                    'id': lead.brain_backoffice.id if lead.brain_backoffice else None,
+                    'name': lead.brain_backoffice.name if lead.brain_backoffice else None,
+                }
             }
             lead_list.append(lead_data)
 
@@ -114,6 +118,29 @@ class CrmLeadController(AuthController):
 
         users_list = []
         for user in coordinadores:
+            users_list.append({
+                'id': user.id,
+                'name': user.name,
+                'email': user.email or '',
+                'login': user.login
+            })
+        return self._brain_response({'status': 'success', 'items': users_list}, 200)
+
+    @http.route('/api/backoffice_sales', type='http', auth="none", methods=['GET'], csrf=False)
+    def get_backoffice(self, **kwargs):
+        """API para obtener lista de usuarios con rol de Coordinador (Sales Manager)"""
+        check, result = self._check_access('crm.lead', operation='read')
+        if not check:
+            return result
+
+        env = result
+        group = env.ref('sales_team.group_sale_manager')
+        backoffice = env['res.users'].sudo().search([
+            ('groups_id', 'in', [group.id])
+        ])
+
+        users_list = []
+        for user in backoffice:
             users_list.append({
                 'id': user.id,
                 'name': user.name,
@@ -177,6 +204,20 @@ class CrmLeadController(AuthController):
         try:
             values = request.get_json_data()
 
+            # Crear cliente si no se envió partner_id
+            partner_id = values.get('partner_id')
+            if not partner_id:
+                partner_vals = {
+                    'name': values.get('name'),
+                    'email': values.get('email_from'),
+                    'phone': values.get('phone'),
+                    'mobile': values.get('mobile'),
+                    'type': 'contact',
+                    'company_type': 'person',  # o 'company' según el caso
+                }
+                new_partner = env['res.partner'].sudo().create(partner_vals)
+                partner_id = new_partner.id
+
             # Validar si el coordinador pertenece al grupo Sales Manager
             coordinador_id = values.get('coordinador_id')
             if coordinador_id:
@@ -193,7 +234,7 @@ class CrmLeadController(AuthController):
                 'expected_revenue': values.get('expected_revenue'),
                 'probability': values.get('probability'),
                 'user_id': values.get('user_id'),
-                'partner_id': values.get('partner_id'),
+                'partner_id': partner_id,
                 'company_id': values.get('company_id'),
                 'address': values.get('address'),
                 'industry': values.get('industry_id'),
@@ -208,7 +249,8 @@ class CrmLeadController(AuthController):
                 'tipo_cliente_id': values.get('tipo_cliente_id'),
                 'tipo_activacion_id': values.get('tipo_activacion_id'),
                 'description': values.get('description'),
-                'brain_province': values.get('brain_province'),
+                'brain_province': values.get('province'),
+                'brain_backoffice': values.get('backoffice_id')
             }
 
             # Archivo adjunto opcional (base64)
@@ -259,7 +301,11 @@ class CrmLeadController(AuthController):
                 'tipo_cliente_name': lead.tipo_cliente_id.name if lead.tipo_cliente_id else None,
                 'tipo_activacion_id': lead.tipo_activacion_id.id if lead.tipo_activacion_id else None,
                 'tipo_activacion_name': lead.tipo_activacion_id.name if lead.tipo_activacion_id else None,
-                'brain_province': lead.brain_province if lead.brain_province else None
+                'province': lead.brain_province if lead.brain_province else None,
+                'backoffice': {
+                    'id': lead.brain_backoffice.id if lead.brain_backoffice else None,
+                    'name': lead.brain_backoffice.name if lead.brain_backoffice else None,
+                }
             }
 
             return self._brain_response({'status': 'success', 'lead': lead_data}, 201)
@@ -395,7 +441,8 @@ class CrmLeadController(AuthController):
                 'tipo_cliente_id': values.get('tipo_cliente_id'),
                 'tipo_activacion_id': values.get('tipo_activacion_id'),
                 'description': values.get('description'),
-                'brain_province': values.get('brain_province'),
+                'brain_province': values.get('province'),
+                'brain_backoffice': values.get('backoffice_id')
             }
 
             # Archivo adjunto opcional (base64)
@@ -444,7 +491,11 @@ class CrmLeadController(AuthController):
                 'tipo_cliente_name': lead.tipo_cliente_id.name if lead.tipo_cliente_id else None,
                 'tipo_activacion_id': lead.tipo_activacion_id.id if lead.tipo_activacion_id else None,
                 'tipo_activacion_name': lead.tipo_activacion_id.name if lead.tipo_activacion_id else None,
-                'brain_province': lead.brain_province if lead.brain_province else None
+                'province': lead.brain_province if lead.brain_province else None,
+                'backoffice': {
+                    'id': lead.brain_backoffice.id if lead.brain_backoffice else None,
+                    'name': lead.brain_backoffice.name if lead.brain_backoffice else None,
+                }
             }
 
             return self._brain_response({'status': 'success', 'lead': lead_data}, 200)

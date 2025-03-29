@@ -8,27 +8,28 @@
         <field name="inherit_id" ref="crm.crm_lead_view_form"/>
         <field name="arch" type="xml">
 
-            <!-- 1) Insertar campos en el bloque de "opportunity_partner" (cuando type='opportunity') -->
-            <!-- Buscamos el campo phone y añadimos nuestros campos justo debajo -->
-            <!-- Buscamos el campo phone dentro del group llamado "opportunity_partner" -->
-           <xpath expr="//group[@name='opportunity_partner']//field[@name='phone']/ancestor::div[@class='o_row o_row_readonly']" position="after">
-                <div class="o_row o_row_readonly">
-                    <group col="1">
+           <!-- Añadir pestaña personalizada al notebook -->
+            <xpath expr="//sheet/notebook" position="inside">
+                <page string="Información de Venta">
+                    <group string="Datos del Cliente" col="2">
                         <field name="brain_coordinador"/>
-                        <field name="adoption_type_id" />
-                        <field name="tipo_cliente_id" />
-                        <field name="tipo_activacion_id" />
+                        <field name="adoption_type_id"/>
+                        <field name="tipo_cliente_id"/>
+                        <field name="tipo_activacion_id"/>
                         <field name="address"/>
                         <field name="industry"/>
-                        <field name="numero_a_portar" />
-                        <field name="sim_card" />
-                        <field name="numero_de_la_linea_nueva" />
-                        <field name="brain_cuenta" />
-                        <field name="brain_orden" />
-                        <field name="brain_mrc" />
-                        <field name="brain_province" />
                     </group>
-                </div>
+                    <group string="Información de Venta" col="2">
+                        <field name="numero_a_portar"/>
+                        <field name="sim_card"/>
+                        <field name="numero_de_la_linea_nueva"/>
+                        <field name="brain_cuenta"/>
+                        <field name="brain_orden"/>
+                        <field name="brain_mrc"/>
+                        <field name="brain_province"/>
+                        <field name="brain_backoffice"/>
+                    </group>
+                </page>
             </xpath>
 
 

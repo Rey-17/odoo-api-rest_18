@@ -37,3 +37,6 @@ class CrmLead(models.Model):
     )
 
     brain_province = fields.Char(string="Provincia")
+    brain_backoffice = fields.Many2one( 'res.users',
+        string="Backoffice",
+        domain=lambda self: [('groups_id', 'in', self.env.ref('sales_team.group_sale_manager').ids)])
